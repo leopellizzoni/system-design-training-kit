@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "architecture": {
+    "nodes": [
+      {
+        "id": "alunos",
+        "type": "client",
+        "name": "Alunos (navegador) — 200 acessos por dia (aqui 1 por segundo, 400 vezes mais)",
+        "clientMode": "open",
+        "rate": 1,
+        "mixRead": 100,
+        "x": 0,
+        "y": 235
+      },
+      {
+        "id": "cantina",
+        "type": "client",
+        "name": "Cantina (atualiza o cardápio) — 1 vez por dia (aqui 1 por segundo)",
+        "clientMode": "open",
+        "rate": 1,
+        "mixWrite": 100,
+        "x": 0,
+        "y": 365
+      },
+      {
+        "id": "app",
+        "type": "service",
+        "name": "Servidor de aplicação (cardápio) — SPOF",
+        "runtime": "python",
+        "cores": 1,
+        "workers": 8,
+        "serviceMs": 2,
+        "queueCapacity": 100,
+        "x": 320,
+        "y": 300
+      },
+      {
+        "id": "db",
+        "type": "database",
+        "name": "Banco (cardápio) — SPOF",
+        "engine": "postgres",
+        "serviceMs": 5,
+        "cores": 2,
+        "workers": 64,
+        "queueCapacity": 200,
+        "x": 640,
+        "y": 300
+      }
+    ],
+    "edges": [
+      {
+        "from": "alunos",
+        "to": "app"
+      },
+      {
+        "from": "cantina",
+        "to": "app"
+      },
+      {
+        "from": "app",
+        "to": "db"
+      }
+    ]
+  }
+}

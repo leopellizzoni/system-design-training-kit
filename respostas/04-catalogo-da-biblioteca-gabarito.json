@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "architecture": {
+    "nodes": [
+      {
+        "id": "alunos",
+        "type": "client",
+        "name": "Alunos (buscam no catálogo) — 1.000 buscas por segundo",
+        "clientMode": "open",
+        "rate": 1000,
+        "mixRead": 100,
+        "x": 0,
+        "y": 235
+      },
+      {
+        "id": "bib",
+        "type": "client",
+        "name": "Bibliotecária (cadastra livros) — 1 cadastro por segundo",
+        "clientMode": "open",
+        "rate": 1,
+        "mixWrite": 100,
+        "x": 0,
+        "y": 365
+      },
+      {
+        "id": "lb",
+        "type": "loadBalancer",
+        "name": "Balanceador",
+        "algorithm": "roundRobin",
+        "workers": 5000,
+        "x": 320,
+        "y": 300
+      },
+      {
+        "id": "app1",
+        "type": "service",
+        "name": "Servidor 1 — busca: cache → réplica; cadastro: primário",
+        "runtime": "python",
+        "cores": 8,
+        "workers": 128,
+        "serviceMs": 0.05,
+        "queueCapacity": 100,
+        "x": 640,
+        "y": 235
+      },
+      {
+        "id": "app2",
+        "type": "service",
+        "name": "Servidor 2 — busca: cache → réplica; cadastro: primário",
+        "runtime": "python",
+        "cores": 8,
+        "workers": 128,
+        "serviceMs": 0.05,
+        "queueCapacity": 100,
+        "x": 640,
+        "y": 365
+      },
+      {
+        "id": "cache",
+        "type": "cache",
+        "name": "Cache de buscas — sintoma: as mesmas 50 buscas repetidas",
+        "engine": "redis",
+        "serviceMs": 0,
+        "hitRatio": 0.9,
+        "workers": 1000,
+        "queueCapacity": 500,
+        "x": 960,
+        "y": 300
+      },
+      {
+        "id": "db",
+        "type": "database",
+        "name": "Banco primário + réplica (só leitura) — sintoma: leitura ≫ escrita · atraso de cópia",
+        "engine": "postgres",
+        "serviceMs": 5,
+        "cores": 2,
+        "workers": 64,
+        "queueCapacity": 200,
+        "replicas": 1,
+        "replication": "async",
+        "readPreference": "secondary",
+        "x": 1280,
+        "y": 300
+      }
+    ],
+    "edges": [
+      {
+        "from": "alunos",
+        "to": "lb"
+      },
+      {
+        "from": "bib",
+        "to": "lb"
+      },
+      {
+        "from": "lb",
+        "to": "app1"
+      },
+      {
+        "from": "lb",
+        "to": "app2"
+      },
+      {
+        "from": "app1",
+        "to": "cache",
+        "fallback": true
+      },
+      {
+        "from": "app2",
+        "to": "cache",
+        "fallback": true
+      },
+      {
+        "from": "cache",
+        "to": "db"
+      }
+    ]
+  }
+}

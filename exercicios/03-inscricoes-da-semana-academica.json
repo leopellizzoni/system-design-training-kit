@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "architecture": {
+    "nodes": [
+      {
+        "id": "alunos",
+        "type": "client",
+        "name": "Alunos (navegador) — 50 inscrições por segundo",
+        "clientMode": "open",
+        "rate": 50,
+        "mixWrite": 100,
+        "x": 0,
+        "y": 300
+      },
+      {
+        "id": "app",
+        "type": "service",
+        "name": "Servidor único — CPU 100%, fila crescendo",
+        "runtime": "python",
+        "cores": 1,
+        "workers": 8,
+        "serviceMs": 2,
+        "queueCapacity": 100,
+        "x": 320,
+        "y": 300
+      },
+      {
+        "id": "db",
+        "type": "database",
+        "name": "Banco (inscrições)",
+        "engine": "postgres",
+        "serviceMs": 5,
+        "cores": 2,
+        "workers": 64,
+        "queueCapacity": 200,
+        "x": 640,
+        "y": 300
+      }
+    ],
+    "edges": [
+      {
+        "from": "alunos",
+        "to": "app"
+      },
+      {
+        "from": "app",
+        "to": "db"
+      }
+    ]
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "architecture": {
+    "nodes": [
+      {
+        "id": "part",
+        "type": "client",
+        "name": "Participantes (clicam em 'emitir certificado') — 5 por segundo",
+        "clientMode": "open",
+        "rate": 5,
+        "mixWrite": 100,
+        "x": 0,
+        "y": 300
+      },
+      {
+        "id": "lb",
+        "type": "loadBalancer",
+        "name": "Balanceador",
+        "algorithm": "roundRobin",
+        "workers": 5000,
+        "x": 320,
+        "y": 300
+      },
+      {
+        "id": "app1",
+        "type": "service",
+        "name": "Servidor 1 — gera o PDF e envia o e-mail antes de responder",
+        "runtime": "python",
+        "cores": 1,
+        "workers": 8,
+        "serviceMs": 80,
+        "queueCapacity": 100,
+        "x": 640,
+        "y": 235
+      },
+      {
+        "id": "app2",
+        "type": "service",
+        "name": "Servidor 2 — gera o PDF e envia o e-mail antes de responder",
+        "runtime": "python",
+        "cores": 1,
+        "workers": 8,
+        "serviceMs": 80,
+        "queueCapacity": 100,
+        "x": 640,
+        "y": 365
+      },
+      {
+        "id": "db",
+        "type": "database",
+        "name": "Banco (participantes e certificados)",
+        "engine": "postgres",
+        "serviceMs": 5,
+        "cores": 2,
+        "workers": 64,
+        "queueCapacity": 200,
+        "x": 960,
+        "y": 235
+      },
+      {
+        "id": "email",
+        "type": "service",
+        "name": "Serviço de e-mail (de fora)",
+        "runtime": "go",
+        "cores": 0,
+        "workers": 100,
+        "serviceMs": 0,
+        "waitMs": 2000,
+        "queueCapacity": 0,
+        "failRate": 0.02,
+        "x": 960,
+        "y": 365
+      }
+    ],
+    "edges": [
+      {
+        "from": "part",
+        "to": "lb"
+      },
+      {
+        "from": "lb",
+        "to": "app1"
+      },
+      {
+        "from": "lb",
+        "to": "app2"
+      },
+      {
+        "from": "app1",
+        "to": "db"
+      },
+      {
+        "from": "app2",
+        "to": "db"
+      },
+      {
+        "from": "app1",
+        "to": "email"
+      },
+      {
+        "from": "app2",
+        "to": "email"
+      }
+    ]
+  }
+}

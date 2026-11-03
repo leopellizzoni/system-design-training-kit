@@ -1,0 +1,230 @@
+{
+  "version": 1,
+  "architecture": {
+    "nodes": [
+      {
+        "id": "alunos",
+        "type": "client",
+        "name": "Alunos — páginas (200 acessos por dia; aqui 1 por segundo, 400 vezes mais)",
+        "clientMode": "open",
+        "rate": 1,
+        "mixRead": 100,
+        "x": 0,
+        "y": 365
+      },
+      {
+        "id": "alunos_img",
+        "type": "client",
+        "name": "Alunos — imagens do cardápio",
+        "clientMode": "open",
+        "rate": 1,
+        "mixRead": 100,
+        "x": 0,
+        "y": 235
+      },
+      {
+        "id": "cdn",
+        "type": "cache",
+        "name": "CDN",
+        "engine": "cdn",
+        "cores": 0,
+        "workers": 50000,
+        "serviceMs": 0,
+        "waitMs": 15,
+        "hitRatio": 0.95,
+        "queueCapacity": 5000,
+        "objectMb": 1,
+        "bandwidthMbps": 100,
+        "x": 320,
+        "y": 235
+      },
+      {
+        "id": "api",
+        "type": "apiGateway",
+        "name": "API Gateway",
+        "workers": 5000,
+        "serviceMs": 0.05,
+        "queueCapacity": 1000,
+        "rateLimit": 0,
+        "x": 320,
+        "y": 365
+      },
+      {
+        "id": "lb",
+        "type": "loadBalancer",
+        "name": "Balanceador",
+        "algorithm": "roundRobin",
+        "workers": 5000,
+        "x": 640,
+        "y": 300
+      },
+      {
+        "id": "app1",
+        "type": "service",
+        "name": "Servidor 1",
+        "runtime": "python",
+        "cores": 1,
+        "workers": 8,
+        "serviceMs": 2,
+        "queueCapacity": 100,
+        "x": 960,
+        "y": 170
+      },
+      {
+        "id": "app2",
+        "type": "service",
+        "name": "Servidor 2",
+        "runtime": "python",
+        "cores": 1,
+        "workers": 8,
+        "serviceMs": 2,
+        "queueCapacity": 100,
+        "x": 960,
+        "y": 300
+      },
+      {
+        "id": "app3",
+        "type": "service",
+        "name": "Servidor 3",
+        "runtime": "python",
+        "cores": 1,
+        "workers": 8,
+        "serviceMs": 2,
+        "queueCapacity": 100,
+        "x": 960,
+        "y": 430
+      },
+      {
+        "id": "cache",
+        "type": "cache",
+        "name": "Cache",
+        "engine": "redis",
+        "serviceMs": 0,
+        "hitRatio": 0.9,
+        "workers": 1000,
+        "queueCapacity": 500,
+        "x": 1280,
+        "y": 235
+      },
+      {
+        "id": "db",
+        "type": "database",
+        "name": "Banco primário + réplica (só leitura)",
+        "engine": "postgres",
+        "serviceMs": 5,
+        "cores": 2,
+        "workers": 64,
+        "queueCapacity": 200,
+        "replicas": 1,
+        "replication": "async",
+        "readPreference": "secondary",
+        "x": 1600,
+        "y": 235
+      },
+      {
+        "id": "fila",
+        "type": "queue",
+        "name": "Fila",
+        "engine": "rabbitmq",
+        "cores": 2,
+        "workers": 1000,
+        "serviceMs": 0,
+        "queueCapacity": 20000,
+        "x": 1280,
+        "y": 365
+      },
+      {
+        "id": "worker",
+        "type": "service",
+        "name": "Worker",
+        "runtime": "python",
+        "cores": 2,
+        "workers": 32,
+        "serviceMs": 30,
+        "queueCapacity": 0,
+        "x": 1600,
+        "y": 365
+      },
+      {
+        "id": "obj",
+        "type": "database",
+        "name": "Armazenamento de objetos",
+        "engine": "s3",
+        "serviceMs": 0,
+        "cores": 0,
+        "workers": 20000,
+        "shards": 8,
+        "readCapacity": 44000,
+        "writeCapacity": 28000,
+        "objectMb": 1,
+        "bandwidthMbps": 640,
+        "queueCapacity": 0,
+        "x": 1920,
+        "y": 300
+      }
+    ],
+    "edges": [
+      {
+        "from": "alunos_img",
+        "to": "cdn"
+      },
+      {
+        "from": "cdn",
+        "to": "obj"
+      },
+      {
+        "from": "alunos",
+        "to": "api"
+      },
+      {
+        "from": "api",
+        "to": "lb"
+      },
+      {
+        "from": "lb",
+        "to": "app1"
+      },
+      {
+        "from": "lb",
+        "to": "app2"
+      },
+      {
+        "from": "lb",
+        "to": "app3"
+      },
+      {
+        "from": "app1",
+        "to": "cache",
+        "fallback": true
+      },
+      {
+        "from": "app2",
+        "to": "cache",
+        "fallback": true
+      },
+      {
+        "from": "app3",
+        "to": "cache",
+        "fallback": true
+      },
+      {
+        "from": "cache",
+        "to": "db"
+      },
+      {
+        "from": "app1",
+        "to": "fila",
+        "probability": 0.1
+      },
+      {
+        "from": "fila",
+        "to": "worker",
+        "consumers": 4
+      },
+      {
+        "from": "worker",
+        "to": "obj"
+      }
+    ]
+  }
+}
