@@ -2,7 +2,7 @@
 
 Exercícios de arquitetura de sistemas web no [StackMonkey](https://app.stackmonkey.dev), um simulador que manda requisições pelo diagrama e mostra fila, latência, taxa de sucesso e qual peça quebra primeiro.
 
-Em cada exercício você recebe um diagrama de partida, um cenário e um sintoma. A tarefa é acrescentar só a peça que o sintoma pede, pausar uma caixa para ver o que acontece quando ela cai e apontar o ponto único de falha (SPOF).
+Em cada exercício você recebe um diagrama de partida, um cenário e um sintoma. A tarefa é fazer só a mudança que o sintoma pede, pausar uma caixa para ver o que acontece quando ela cai e apontar o ponto único de falha (SPOF). Às vezes a mudança é tirar uma peça, não acrescentar.
 
 ## Antes de começar
 
